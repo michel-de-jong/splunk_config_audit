@@ -1,0 +1,561 @@
+<form version="1.1">
+  <label>Configuration Changes</label>
+  <init>
+    <set token="sum_index">rest_summary</set>
+    <unset token="stanza"></unset>
+    <unset token="label"></unset>
+    <unset token="title"></unset>
+  </init>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="searchhead" searchWhenChanged="true">
+      <label>Instances</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>instance</fieldForLabel>
+      <fieldForValue>instance</fieldForValue>
+      <search>
+        <query>index=_internal (host=sh*.*splunk*.* OR host=si*.*splunk*.*) 
+| dedup host 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host)
+| dedup instance
+| table instance</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="timenow_e">
+      <label>Comparison Time Window 1</label>
+      <choice value="-1d">Today</choice>
+      <choice value="-14d">- 13 days ago - 14 days ago</choice>
+      <change>
+        <condition value="-1d">
+          <set token="timenow_l">now</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-2d">
+          <set token="timenow_l">-1d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-3d">
+          <set token="timenow_l">-2d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-4d">
+          <set token="timenow_l">-3d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-5d">
+          <set token="timenow_l">-4d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-6d">
+          <set token="timenow_l">-5d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-7d">
+          <set token="timenow_l">-6d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-14d">
+          <set token="timenow_l">-13d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+      </change>
+      <default>-1d</default>
+    </input>
+    <input type="dropdown" token="timecompare_e">
+      <label>Comparison Time Window 2</label>
+      <choice value="-2d">Yesterday</choice>
+      <choice value="-3d">3 days ago</choice>
+      <choice value="-4d">4 days ago</choice>
+      <choice value="-5d">5 days ago</choice>
+      <choice value="-6d">6 days ago</choice>
+      <choice value="-7d">7 days ago</choice>
+      <choice value="-14d">14 days ago</choice>
+      <choice value="-28d">28 days ago</choice>
+      <choice value="-50d">50 days ago</choice>
+      <change>
+        <condition value="-2d">
+          <set token="timecompare_l">-1d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-3d">
+          <set token="timecompare_l">-2d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-4d">
+          <set token="timecompare_l">-3d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-5d">
+          <set token="timecompare_l">-4d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-6d">
+          <set token="timecompare_l">-5d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-7d">
+          <set token="timecompare_l">-6d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-14d">
+          <set token="timecompare_l">-13d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-28d">
+          <set token="timecompare_l">-27d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+        <condition value="-50d">
+          <set token="timecompare_l">-49d</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </condition>
+      </change>
+      <default>-2d</default>
+    </input>
+    <input type="radio" token="sharing_tok">
+      <label>Include Sharing</label>
+      <choice value="*">All Content</choice>
+      <choice value="user">Private Content</choice>
+      <default>*</default>
+    </input>
+    <input type="checkbox" token="reset_toks" searchWhenChanged="true">
+      <label>Reset All Tokens</label>
+      <choice value="reset">Reset</choice>
+      <change>
+        <condition value="reset">
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+          <unset token="title"></unset>
+          <unset token="source"></unset>
+          <unset token="form.reset_toks"></unset>
+        </condition>
+      </change>
+      <delimiter> </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Conf Changes Overview</title>
+      <input type="checkbox" token="reset_conf_tok" searchWhenChanged="true">
+        <label>Reset Conf Tokens</label>
+        <choice value="reset">Reset</choice>
+        <change>
+          <condition value="reset">
+            <unset token="stanza"></unset>
+            <unset token="source"></unset>
+            <unset token="form.reset_conf_tok"></unset>
+          </condition>
+        </change>
+        <delimiter> </delimiter>
+      </input>
+      <input type="dropdown" token="source" searchWhenChanged="true">
+        <label>Conf File</label>
+        <choice value="rest_conf_*">All</choice>
+        <fieldForLabel>source</fieldForLabel>
+        <fieldForValue>source</fieldForValue>
+        <search>
+          <query>index=$sum_index$ source=rest_conf*
+| dedup source 
+| table source</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <default>rest_conf_*</default>
+      </input>
+      <table>
+        <title>$timenow_e$ - $timenow_l$ | $timecompare_e$ - $timecompare_l$</title>
+        <search>
+          <query>index=$sum_index$ source=$source$ sharing=$sharing_tok$
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields conf stanza app sharing perms.* updated 
+| stats values(*) as * by stanza, app conf 
+| search NOT 
+    [| search index=$sum_index$ source=$source$ sharing=$sharing_tok$ earliest=$timecompare_e$ latest=$timecompare_l$
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields conf stanza app sharing perms.*  
+    | stats values(*) as * by stanza, app conf] 
+| table conf stanza app sharing perms.* *</query>
+          <earliest>$timenow_e$</earliest>
+          <latest>$timenow_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="stanza">$row.stanza$</set>
+          <unset token="label"></unset>
+          <unset token="title"></unset>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Dashboard Changes Overview</title>
+      <input type="checkbox" token="reset_dash_tok" searchWhenChanged="true">
+        <label>Reset Dash Tokens</label>
+        <choice value="reset">Reset</choice>
+        <change>
+          <condition value="reset">
+            <unset token="label"></unset>
+            <unset token="form.reset_dash_tok"></unset>
+          </condition>
+        </change>
+        <delimiter> </delimiter>
+      </input>
+      <table>
+        <title>$timenow_e$ - $timenow_l$ | $timecompare_e$ - $timecompare_l$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_views sharing=$sharing_tok$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+| stats values(*) as * by label, app 
+| search NOT 
+    [| search index=$sum_index$ source=rest_views sharing=$sharing_tok$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance updated
+    | stats values(*) as * by label, app]</query>
+          <earliest>$timenow_e$</earliest>
+          <latest>$timenow_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="label">$row.label$</set>
+          <unset token="stanza"></unset>
+          <unset token="title"></unset>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Lookup Changes Overview</title>
+      <input type="checkbox" token="reset_look_tok" searchWhenChanged="true">
+        <label>Reset Lookup Tokens</label>
+        <choice value="reset">Reset</choice>
+        <change>
+          <condition value="reset">
+            <unset token="title"></unset>
+            <unset token="form.reset_look_tok"></unset>
+          </condition>
+        </change>
+        <delimiter> </delimiter>
+      </input>
+      <table>
+        <title>$timenow_e$ - $timenow_l$ | $timecompare_e$ - $timecompare_l$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title!=*.mlmodel
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+| stats values(*) as * by title, app 
+| search NOT 
+    [| search index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title!=*.mlmodel earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance updated
+    | stats values(*) as * by title, app]</query>
+          <earliest>$timenow_e$</earliest>
+          <latest>$timenow_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="title">$row.title$</set>
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$stanza$">
+      <title>Conf Old Value</title>
+      <table>
+        <title>Stanza: $stanza$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_conf* sharing=$sharing_tok$ stanza=$stanza|s$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - date* host info* search* splunk_server time* index sourcetype source linecount 
+| stats values(*) as * by stanza, app conf 
+| search NOT 
+    [| search index=$sum_index$ source=rest_conf* sharing=$sharing_tok$ stanza=$stanza|s$ earliest=$timenow_e$ latest=$timenow_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - date* host info* search* splunk_server time* index sourcetype source linecount 
+    | stats values(*) as * by stanza, app conf] 
+| table conf stanza app sharing perms.* * 
+| transpose 
+| search NOT 
+    [| search index=$sum_index$ source=rest_conf* sharing=$sharing_tok$ stanza=$stanza|s$ earliest=$timenow_e$ latest=$timenow_l$ 
+    | fields - date* host info* search* splunk_server time* index sourcetype source linecount 
+    | stats values(*) as * by stanza, app conf 
+    | transpose] 
+| rename column as key "row 1" as value 
+| where isnotnull(value)</query>
+          <earliest>$timecompare_e$</earliest>
+          <latest>$timecompare_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$stanza$">
+      <title>Conf New Value</title>
+      <table>
+        <title>Stanza: $stanza$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_conf* sharing=$sharing_tok$ stanza=$stanza|s$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - date* host info* search* splunk_server time* index sourcetype source linecount 
+| stats values(*) as * by stanza, app conf 
+| search NOT 
+    [| search index=$sum_index$ source=rest_conf* sharing=$sharing_tok$ stanza=$stanza|s$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - date* host info* search* splunk_server time* index sourcetype source linecount 
+    | stats values(*) as * by stanza, app conf] 
+| table conf stanza app sharing perms.* * 
+| transpose 
+| search NOT 
+    [| search index=$sum_index$ source=rest_conf* sharing=$sharing_tok$ stanza=$stanza|s$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | fields - date* host info* search* splunk_server time* index sourcetype source linecount 
+    | stats values(*) as * by stanza, app conf 
+    | transpose] 
+| rename column as key "row 1" as value 
+| where isnotnull(value)</query>
+          <earliest>$timenow_e$</earliest>
+          <latest>$timenow_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$label$">
+      <title>Dashboard Old Value</title>
+      <table>
+        <title>Label: $label$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_views sharing=$sharing_tok$ label=$label|s$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+| stats values(*) as * by label, app 
+| search NOT 
+    [| search index=$sum_index$ source=rest_views sharing=$sharing_tok$ label=$label|s$ earliest=$timenow_e$ latest=$timenow_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+    | stats values(*) as * by label, app] 
+| transpose 
+| search NOT 
+    [| search index=$sum_index$ source=rest_views sharing=$sharing_tok$ label=$label|s$ earliest=$timenow_e$ latest=$timenow_l$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+    | stats values(*) as * by label, app 
+    | transpose] 
+| rename column as key "row 1" as value 
+| where isnotnull(value)</query>
+          <earliest>$timecompare_e$</earliest>
+          <latest>$timecompare_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$label$">
+      <title>Dashboard New Value</title>
+      <table>
+        <title>Label: $label$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_views sharing=$sharing_tok$ label=$label|s$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name host
+| stats values(*) as * by label, app 
+| search NOT 
+    [| search index=$sum_index$ source=rest_views sharing=$sharing_tok$ label=$label|s$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name host
+    | stats values(*) as * by label, app] 
+| transpose 
+| search NOT 
+    [| search index=$sum_index$ source=rest_views sharing=$sharing_tok$ label=$label|s$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount 
+    | stats values(*) as * by label, app 
+    | transpose] 
+| rename column as key "row 1" as value 
+| where isnotnull(value)</query>
+          <earliest>$timenow_e$</earliest>
+          <latest>$timenow_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$title$">
+      <title>Lookup Old Value</title>
+      <table>
+        <title>Title: $title$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title=$title|s$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+| stats values(*) as * by title, app 
+| search NOT 
+    [| search index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title=$title|s$ earliest=$timenow_e$ latest=$timenow_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+    | stats values(*) as * by title, app] 
+| transpose 
+| search NOT 
+    [| search index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title=$title|s$ earliest=$timenow_e$ latest=$timenow_l$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+    | stats values(*) as * by title, app 
+    | transpose] 
+| rename column as key "row 1" as value 
+| where isnotnull(value)</query>
+          <earliest>$timecompare_e$</earliest>
+          <latest>$timecompare_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$title$">
+      <title>Lookup New Value</title>
+      <table>
+        <title>Label: $title$</title>
+        <search>
+          <query>index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title=$title|s$ 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance=$searchhead$ 
+| fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+| stats values(*) as * by title, app 
+| search NOT 
+    [| search index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title=$title|s$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+    | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+    | search instance=$searchhead$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+    | stats values(*) as * by title, app] 
+| transpose 
+| search NOT 
+    [| search index=$sum_index$ source=rest_lookups sharing=$sharing_tok$ title=$title|s$ earliest=$timecompare_e$ latest=$timecompare_l$ 
+    | fields - data date* host info* search* splunk_server time* index sourcetype source linecount dns_alt_name instance
+    | stats values(*) as * by title, app 
+    | transpose] 
+| rename column as key "row 1" as value 
+| where isnotnull(value)</query>
+          <earliest>$timenow_e$</earliest>
+          <latest>$timenow_l$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

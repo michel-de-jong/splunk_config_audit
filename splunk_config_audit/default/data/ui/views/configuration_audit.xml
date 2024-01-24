@@ -1,0 +1,218 @@
+<form version="1.1">
+  <label>Configuration Audit</label>
+  <search id="base">
+    <query>
+      index=_audit (info=succeeded OR info=success) OR (action=modified object=*.csv OR object=*.xml path!=*history*) (action!="Remote token requested" action!=success action!=logout action!=edit_user action!=login*) NOT 
+    [| inputlookup exusers.csv] NOT app=0* NOT app=1* 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance="$searchhead$"
+| eval type=case(like(object, "%.csv"), "lookup", like(object, "%.xml"), "dashboard", isnotnull(savedsearch_name) OR isnotnull(savedsearch), "savedsearch", true(), "n/a") 
+| eval object=coalesce(object, savedsearch_name, savedsearch, username, "n/a")
+    </query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="searchhead" searchWhenChanged="true">
+      <label>Instances</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>instance</fieldForLabel>
+      <fieldForValue>instance</fieldForValue>
+      <search>
+        <query>index=_internal (host=sh*.*splunk*.* OR host=si*.*splunk*.*) 
+| dedup host 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host)
+| dedup instance
+| table instance</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="time" token="time" searchWhenChanged="true">
+      <label>Timeframe</label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="checkbox" token="reset_toks" searchWhenChanged="true">
+      <label>Reset All Tokens</label>
+      <choice value="reset">Reset</choice>
+      <change>
+        <condition value="reset">
+          <unset token="stanza"></unset>
+          <unset token="label"></unset>
+          <unset token="title"></unset>
+          <unset token="source"></unset>
+          <unset token="form.reset_toks"></unset>
+        </condition>
+      </change>
+      <delimiter> </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>GUI Changes by User over Time</title>
+      <chart>
+        <title>$time.earliest$  | Click for raw events</title>
+        <search base="base">
+          <query>
+| timechart useother=f count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">Count of Actions</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20action!%3Dedit_user)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>GUI Changes by Action over Time</title>
+      <chart>
+        <title>$time.earliest$ | Click for raw events</title>
+        <search base="base">
+          <query>
+| timechart useother=f count by action</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20%20action!%3Dedit_user)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+    <panel>
+      <title>GUI Changes by Object over Time</title>
+      <chart>
+        <title>$time.earliest$ | Click for raw events</title>
+        <search base="base">
+          <query>| timechart useother=f count by object</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20%20action!%3Dedit_user)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Overview</title>
+      <table>
+        <search base="base">
+          <query>
+| eval date=strftime(_time, "%Y-%m-%d"), time=strftime(_time, "%H:%M:%S")
+| stats values(action) as action values(time) as time by object date user type
+| table date time user action type object
+| sort - date</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="object">$row.object$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

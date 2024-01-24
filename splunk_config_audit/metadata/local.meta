@@ -1,0 +1,16 @@
+[savedsearches/Generator%20-%20REST%20Summary%20-%20authorize]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+owner = admin
+version = 9.0.4.1
+
+[savedsearches/Generator%20-%20REST%20Summary%20-%20authentication]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+owner = admin
+version = 9.0.4.1
+
+[views/configuration_changes]
+access = read : [ admin, sc_admin ], write : [ admin, sc_admin ]
+export = none
+owner = admin

@@ -1,0 +1,99 @@
+<dashboard version="1.1">
+  <label>Private Content</label>
+  <row>
+    <panel>
+      <title>Private Conf Objects</title>
+      <table>
+        <search>
+          <query>| rest servicesNS/-/-/configs/conf-datamodels splunk_server=local | eval conf="datamodels"
+| append [| rest servicesNS/-/-/configs/conf-eventtypes splunk_server=local | eval conf="eventtypes"]
+| append [| rest servicesNS/-/-/configs/conf-indexes splunk_server=local | eval conf="indexes" ]
+| append [| rest servicesNS/-/-/configs/conf-macros splunk_server=local | eval conf="macros"]
+| append [| rest servicesNS/-/-/configs/conf-props splunk_server=local | eval conf="props"]
+| append [| rest servicesNS/-/-/saved/searches splunk_server=local | eval conf="savedsearches"]
+| append [| rest servicesNS/-/-/configs/conf-tags splunk_server=local  | eval conf="tags"]
+| append [| rest servicesNS/-/-/configs/conf-transforms splunk_server=local   | eval conf="transforms"]
+| rename eai:acl.* as * title as stanza
+| eval "perms.read"=if(read=="*", "everyone", read), "perms.write"=if(read=="*", "everyone", write)
+| fields - read write
+| where sharing="user"
+| stats values(*) as * by stanza, app conf 
+| table conf stanza app sharing perms.* author</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="stanza">$row.stanza$</set>
+          <link target="_blank">search?q=%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-datamodels%20splunk_server%3Dlocal%20%7C%20eval%20conf%3D%22datamodels%22%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-eventtypes%20splunk_server%3Dlocal%20%7C%20eval%20conf%3D%22eventtypes%22%5D%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-indexes%20splunk_server%3Dlocal%20%7C%20eval%20conf%3D%22indexes%22%20%5D%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-macros%20splunk_server%3Dlocal%20%7C%20eval%20conf%3D%22macros%22%5D%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-props%20splunk_server%3Dlocal%20%7C%20eval%20conf%3D%22props%22%5D%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fsaved%2Fsearches%20splunk_server%3Dlocal%20%7C%20eval%20conf%3D%22savedsearches%22%5D%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-tags%20splunk_server%3Dlocal%20%20%7C%20eval%20conf%3D%22tags%22%5D%0A%7C%20append%20%5B%7C%20rest%20servicesNS%2F-%2F-%2Fconfigs%2Fconf-transforms%20splunk_server%3Dlocal%20%20%20%7C%20eval%20conf%3D%22transforms%22%5D%0A%7C%20rename%20eai%3Aacl.*%20as%20*%20title%20as%20stanza%0A%7C%20rename%20perms.*%20as%20*%0A%7C%20eval%20%22perms.read%22%3Dif(read%3D%3D%22*%22%2C%20%22everyone%22%2C%20read)%2C%20%22perms.write%22%3Dif(read%3D%3D%22*%22%2C%20%22everyone%22%2C%20write)%0A%7C%20fields%20-%20read%20write%20%0A%7C%20where%20sharing%3D%22user%22%0A%7C%20stats%20values(*)%20as%20*%20by%20stanza%2C%20app%20conf%20%0A%7C%20search%20stanza%3D$stanza|s$%0A%7C%20table%20conf%20stanza%20app%20sharing%20perms.*%20*%0A%7C%20transpose&amp;earliest=-5m&amp;latest=now</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Private Dashboards</title>
+      <table>
+        <search>
+          <query>| rest servicesNS/-/-/data/ui/views splunk_server=local
+| fields label eai:acl.app eai:acl.perms.read eai:acl.perms.write eai:acl.sharing eai:acl.sharing author 
+| rename eai:acl.* as * eai:* as *
+| eval _time=now(), "perms.read"=if(read=="*", "everyone", read), "perms.write"=if(read=="*", "everyone", write)
+| fields - read write
+| eval xml_length=len(data)
+| where sharing="user"
+| stats values(*) as * by label, app</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="label">$row.label$</set>
+          <link target="_blank">search?q=%7C%20rest%20servicesNS%2F-%2F-%2Fdata%2Fui%2Fviews%20splunk_server%3Dlocal%0A%7C%20fields%20label%20eai%3Aacl.app%20eai%3Aacl.perms.read%20eai%3Aacl.perms.write%20eai%3Aacl.sharing%20eai%3Aacl.sharing%20eai%3Adata%20author%20*%0A%7C%20rename%20eai%3Aacl.*%20as%20*%20eai%3A*%20as%20*%0A%7C%20rename%20perms.*%20as%20*%20%0A%7C%20eval%20_time%3Dnow()%2C%20%22perms.read%22%3Dif(read%3D%3D%22*%22%2C%20%22everyone%22%2C%20read)%2C%20%22perms.write%22%3Dif(read%3D%3D%22*%22%2C%20%22everyone%22%2C%20write)%0A%7C%20fields%20-%20read%20write%0A%7C%20eval%20xml_length%3Dlen(data)%0A%7C%20where%20sharing%3D%22user%22%0A%7C%20search%20label%3D$label|s$%0A%7C%20stats%20values(*)%20as%20*%20by%20label%2C%20app%0A%7C%20transpose&amp;earliest=-5m&amp;latest=now</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <title>Private Lookups</title>
+      <table>
+        <search>
+          <query>| rest servicesNS/-/-/data/lookup-table-files splunk_server=local
+| fields title author eai:acl.app eai:acl.perms.read eai:acl.perms.write eai:acl.sharing eai:acl.sharing 
+| rename eai:acl.* as * eai:* as *
+| eval _time=now(), "perms.read"=if(read=="*", "everyone", read), "perms.write"=if(read=="*", "everyone", write)
+| fields - read write
+| where sharing="user"
+| stats values(*) as * by title, app</query>
+          <earliest>-5m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="title">$row.title$</set>
+          <link target="_blank">search?q=%7C%20rest%20servicesNS%2F-%2F-%2Fdata%2Flookup-table-files%20splunk_server%3Dlocal%0A%7C%20fields%20title%20author%20eai%3Aacl.app%20eai%3Aacl.perms.read%20eai%3Aacl.perms.write%20eai%3Aacl.sharing%20eai%3Aacl.sharing%20*%0A%7C%20rename%20eai%3Aacl.*%20as%20*%20eai%3A*%20as%20*%0A%7C%20rename%20perms.*%20as%20*%0A%7C%20eval%20_time%3Dnow()%2C%20%22perms.read%22%3Dif(read%3D%3D%22*%22%2C%20%22everyone%22%2C%20read)%2C%20%22perms.write%22%3Dif(read%3D%3D%22*%22%2C%20%22everyone%22%2C%20write)%0A%7C%20fields%20-%20read%20write%0A%7C%20where%20sharing%3D%22user%22%0A%7C%20search%20title%3D$title|s$%0A%7C%20fields%20-%20can_*%0A%7C%20stats%20values(*)%20as%20*%20by%20title%2C%20app%0A%7C%20transpose&amp;earliest=-5m&amp;latest=now</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</dashboard>
