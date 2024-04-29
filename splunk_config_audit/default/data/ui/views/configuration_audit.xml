@@ -96,7 +96,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20action!%3Dedit_user)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20action!%3Dedit_user%20action!%3Dlogin*)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -141,7 +141,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20%20action!%3Dedit_user)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20action!%3Dedit_user%20action!%3Dlogin*)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
@@ -185,7 +185,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20%20action!%3Dedit_user)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
+          <link target="_blank">search?q=index%3D_audit%20(info%3Dsucceeded%20OR%20info%3Dsuccess)%20OR%20(action%3Dmodified%20object%3D*.csv%20OR%20object%3D*.xml%20path!%3D*history*)%20(action!%3D%22Remote%20token%20requested%22%20action!%3Dsuccess%20action!%3Dlogout%20action!%3Dedit_user%20action!%3Dlogin*)%20NOT%20%0A%20%20%20%20%5B%7C%20inputlookup%20exusers.csv%5D%20NOT%20app%3D0*%20NOT%20app%3D1*%0A%7C%20lookup%20host_dns_alt_name.csv%20host%20OUTPUT%20dns_alt_name%20%0A%7C%20eval%20instance%3Dif(isnotnull(dns_alt_name)%2C%20dns_alt_name%2C%20host)%20%0A%7C%20search%20instance%3D$searchhead$&amp;earliest=$time.earliest$&amp;latest=$time.latest$</link>
         </drilldown>
       </chart>
     </panel>
