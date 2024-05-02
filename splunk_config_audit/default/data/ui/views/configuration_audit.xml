@@ -2,13 +2,13 @@
   <label>Configuration Audit</label>
   <search id="base">
     <query>
-      index=_audit (info=succeeded OR info=success) OR (action=modified object=*.csv OR object=*.xml path!=*history*) (action!="Remote token requested" action!=success action!=logout action!=edit_user action!=login*) NOT 
+      index=_audit host=*splunkcloud* (info=succeeded OR info=success) OR (action=modified object=*.csv OR object=*.xml path!=*history*) (action!="Remote token requested" action!=success action!=logout action!=edit_user action!=login*) NOT 
     [| inputlookup exusers.csv] NOT app=0* NOT app=1* 
 | lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
 | eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
 | search instance="$searchhead$"
 | eval type=case(like(object, "%.csv"), "lookup", like(object, "%.xml"), "dashboard", isnotnull(savedsearch_name) OR isnotnull(savedsearch), "savedsearch", true(), "n/a") 
-| eval object=coalesce(object, savedsearch_name, savedsearch, username, "n/a")
+| eval object=coalesce(object, savedsearch_name, savedsearch, username, "n/a"), app=coalesce(app, "n/a")
     </query>
     <earliest>$time.earliest$</earliest>
     <latest>$time.latest$</latest>
@@ -197,8 +197,8 @@
         <search base="base">
           <query>
 | eval date=strftime(_time, "%Y-%m-%d"), time=strftime(_time, "%H:%M:%S")
-| stats values(action) as action values(time) as time by object date user type
-| table date time user action type object
+| stats values(action) as action values(time) as time by app object date user type
+| table date time user action type app object
 | sort - date</query>
         </search>
         <option name="count">10</option>
