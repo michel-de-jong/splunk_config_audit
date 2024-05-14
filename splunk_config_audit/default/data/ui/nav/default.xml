@@ -1,5 +1,6 @@
 <nav search_view="search" color="#5CC05C">
-  <view name="configuration_audit" default="true" />
+  <view name="configuration_audit_splunkcloud" default="true" />
+  <view name="configuration_audit" />
   <view name="configuration_changes" />
   <view name="private_content"/>
   <view name="search"/>

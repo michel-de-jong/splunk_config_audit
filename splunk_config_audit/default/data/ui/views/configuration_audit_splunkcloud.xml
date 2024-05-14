@@ -1,9 +1,12 @@
 <form version="1.1">
-  <label>Configuration Audit</label>
+  <label>Configuration Audit (Splunkcloud)</label>
   <search id="base">
     <query>
-      index=_audit host=$host_tok$ (info=succeeded OR info=success) OR (action=modified object=*.csv OR object=*.xml path!=*history*) (action!="Remote token requested" action!=success action!=logout action!=edit_user action!=login*) NOT 
-    [| inputlookup exusers.csv]
+      index=_audit host=sh*splunkcloud* (info=succeeded OR info=success) OR (action=modified object=*.csv OR object=*.xml path!=*history*) (action!="Remote token requested" action!=success action!=logout action!=edit_user action!=login*) NOT 
+    [| inputlookup exusers.csv] NOT app=0* NOT app=1* 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host) 
+| search instance="$searchhead$"
 | eval type=case(like(object, "%.csv"), "lookup", like(object, "%.xml"), "dashboard", isnotnull(savedsearch_name) OR isnotnull(savedsearch), "savedsearch", true(), "n/a") 
 | eval object=coalesce(object, savedsearch_name, savedsearch, username, "n/a"), app=coalesce(app, "n/a")
     </query>
@@ -12,11 +15,21 @@
     <sampleRatio>1</sampleRatio>
   </search>
   <fieldset submitButton="false">
-    <input type="text" token="host_tok" searchWhenChanged="true">
-      <label>host</label>
-      <default>Splunk-SHC</default>
-      <prefix>"*</prefix>
-      <suffix>*"</suffix>
+    <input type="dropdown" token="searchhead" searchWhenChanged="true">
+      <label>Instances</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>instance</fieldForLabel>
+      <fieldForValue>instance</fieldForValue>
+      <search>
+        <query>index=_internal (host=sh*.*splunk*.* OR host=si*.*splunk*.*) 
+| dedup host 
+| lookup host_dns_alt_name.csv host OUTPUT dns_alt_name 
+| eval instance=if(isnotnull(dns_alt_name), dns_alt_name, host)
+| dedup instance
+| table instance</query>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </search>
     </input>
     <input type="time" token="time" searchWhenChanged="true">
       <label>Timeframe</label>
